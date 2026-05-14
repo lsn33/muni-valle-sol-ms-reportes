@@ -1,10 +1,10 @@
-package cl.municipalidad.ms_reportes;
+package cl.municipalidad.msreport;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MsReportesApplicationTests {
+class MsReportApplicationTests {
 
 	@Test
 	void contextLoads() {

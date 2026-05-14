@@ -1,4 +1,4 @@
-package cl.municipalidad.ms_reportes.reporte;
+package cl.municipalidad.msreport.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "reporte")
-public class Reporte {
+public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

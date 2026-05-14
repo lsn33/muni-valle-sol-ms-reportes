@@ -1,57 +1,62 @@
-package cl.municipalidad.ms_reportes.reporte;
+package cl.municipalidad.msreport.service;
 
-import cl.municipalidad.ms_reportes.reporte.factory.ReporteFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import cl.municipalidad.msreport.dto.ReportDTO;
+import cl.municipalidad.msreport.factory.ReportFactory;
+import cl.municipalidad.msreport.model.Report;
+import cl.municipalidad.msreport.repository.ReportRepository;
+
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReporteService {
+public class ReportService {
 
-    private final ReporteRepository reporteRepository;
-    private final ReporteFactory reporteFactory;
+    private final ReportRepository reporteRepository;
+    private final ReportFactory reporteFactory;
 
-    public ReporteDTO crear(String titulo, String descripcion,
+    public ReportDTO crear(String titulo, String descripcion,
                             Double latitud, Double longitud,
                             String tipo, String emailUsuario) {
 
-        Reporte reporte = reporteFactory.crear(titulo, descripcion, 
+        Report reporte = reporteFactory.crear(titulo, descripcion, 
                                                latitud, longitud, 
                                                tipo, emailUsuario);
-        Reporte guardado = reporteRepository.save(reporte);
+        Report guardado = reporteRepository.save(reporte);
         return toDTO(guardado);
     }
 
-    public List<ReporteDTO> listarActivos() {
+    public List<ReportDTO> listarActivos() {
         return reporteRepository.findByEstado("ACTIVO")
                 .stream()
                 .map(this::toDTO)
                 .toList();
     }
 
-    public List<ReporteDTO> listarTodos() {
+    public List<ReportDTO> listarTodos() {
         return reporteRepository.findAll()
                 .stream()
                 .map(this::toDTO)
                 .toList();
     }
 
-    public ReporteDTO buscarPorId(Long id) {
+    public ReportDTO buscarPorId(Long id) {
         return reporteRepository.findById(id)
                 .map(this::toDTO)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
     }
 
-    public ReporteDTO actualizarEstado(Long id, String nuevoEstado) {
-        Reporte reporte = reporteRepository.findById(id)
+    public ReportDTO actualizarEstado(Long id, String nuevoEstado) {
+        Report reporte = reporteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
         reporte.setEstado(nuevoEstado);
         return toDTO(reporteRepository.save(reporte));
     }
 
-    private ReporteDTO toDTO(Reporte reporte) {
-        return new ReporteDTO(
+    private ReportDTO toDTO(Report reporte) {
+        return new ReportDTO(
                 reporte.getId(),
                 reporte.getTitulo(),
                 reporte.getDescripcion(),

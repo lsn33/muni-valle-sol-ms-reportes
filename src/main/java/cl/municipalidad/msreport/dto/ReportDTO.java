@@ -1,8 +1,8 @@
-package cl.municipalidad.ms_reportes.reporte;
+package cl.municipalidad.msreport.dto;
 
 import java.time.LocalDateTime;
 
-public record ReporteDTO(
+public record ReportDTO(
     Long id,
     String titulo,
     String descripcion,

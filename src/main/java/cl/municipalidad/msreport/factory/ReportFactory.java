@@ -1,16 +1,17 @@
-package cl.municipalidad.ms_reportes.reporte.factory;
+package cl.municipalidad.msreport.factory;
 
-import cl.municipalidad.ms_reportes.reporte.Reporte;
 import org.springframework.stereotype.Component;
 
-@Component
-public class ReporteFactory {
+import cl.municipalidad.msreport.model.Report;
 
-    public Reporte crear(String titulo, String descripcion, 
+@Component
+public class ReportFactory {
+
+    public Report crear(String titulo, String descripcion, 
                          Double latitud, Double longitud,
                          String tipo, String emailUsuario) {
         
-        Reporte reporte = new Reporte();
+        Report reporte = new Report();
         reporte.setTitulo(titulo);
         reporte.setDescripcion(descripcion);
         reporte.setLatitud(latitud);
@@ -18,7 +19,7 @@ public class ReporteFactory {
         reporte.setEmailUsuario(emailUsuario);
         reporte.setTipo(tipo.toUpperCase());
 
-        switch (TipoReporte.valueOf(tipo.toUpperCase())) {
+        switch (ReportType.valueOf(tipo.toUpperCase())) {
             case INCENDIO -> {
                 reporte.setEstado("ACTIVO");
                 reporte.setDescripcion(descripcion + " [PRIORIDAD ALTA]");
