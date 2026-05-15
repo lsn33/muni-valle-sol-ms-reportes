@@ -21,8 +21,8 @@ public class ReportService {
                             Double latitud, Double longitud,
                             String tipo, String emailUsuario) {
 
-        Report reporte = reporteFactory.crear(titulo, descripcion, 
-                                               latitud, longitud, 
+        Report reporte = reporteFactory.crear(titulo, descripcion,
+                                               latitud, longitud,
                                                tipo, emailUsuario);
         Report guardado = reporteRepository.save(reporte);
         return toDTO(guardado);
@@ -53,6 +53,20 @@ public class ReportService {
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
         reporte.setEstado(nuevoEstado);
         return toDTO(reporteRepository.save(reporte));
+    }
+
+    public ReportDTO actualizarTitulo(Long id, String nuevoTitulo) {
+        Report reporte = reporteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
+        reporte.setTitulo(nuevoTitulo);
+        return toDTO(reporteRepository.save(reporte));
+    }
+
+    public void eliminar(Long id) {
+        if (!reporteRepository.existsById(id)) {
+            throw new RuntimeException("Reporte no encontrado con id: " + id);
+        }
+        reporteRepository.deleteById(id);
     }
 
     private ReportDTO toDTO(Report reporte) {
