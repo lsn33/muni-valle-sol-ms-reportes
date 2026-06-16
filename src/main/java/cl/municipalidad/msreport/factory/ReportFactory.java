@@ -1,6 +1,8 @@
 package cl.municipalidad.msreport.factory;
 
 import org.springframework.stereotype.Component;
+
+import cl.municipalidad.msreport.dto.CreateReportRequest;
 import cl.municipalidad.msreport.model.Report;
 
 /**
@@ -11,21 +13,23 @@ import cl.municipalidad.msreport.model.Report;
  * inicial y la etiqueta de prioridad según el tipo de reporte, sin que
  * el servicio ni el controlador conozcan estas reglas.</p>
  *
- * <p>De esta forma, si se agrega un nuevo tipo de reporte en el futuro,
- * solo se modifica esta clase y el enum {@link ReportType}, sin tocar
- * el resto del sistema.</p>
- *
- * <p><b>Patrón aplicado:</b> Factory Method (GoF).</p>
- *
- * <p><b>Reglas de negocio aplicadas:</b>
+ * <p>Patrones aplicados:</p>
  * <ul>
- *   <li>INCENDIO → estado {@code ACTIVO}, prioridad {@code ALTA}</li>
- *   <li>HUMO → estado {@code EN_REVISION}, prioridad {@code MEDIA}</li>
- *   <li>SOSPECHOSO → estado {@code PENDIENTE}, prioridad {@code BAJA}</li>
- * </ul></p>
+ *   <li>Factory Method: encapsula la lógica de creación según el tipo</li>
+ *   <li>Single Responsibility: única clase responsable de construir entidades Report</li>
+ *   <li>Open/Closed: agregar un tipo nuevo solo requiere un nuevo case en el switch</li>
+ * </ul>
  *
- * @author Municipalidad Valle del Sol
+ * <p>Reglas de negocio encapsuladas:</p>
+ * <pre>{@code
+ * INCENDIO   → estado ACTIVO      + [PRIORIDAD ALTA]
+ * HUMO       → estado EN_REVISION + [PRIORIDAD MEDIA]
+ * SOSPECHOSO → estado PENDIENTE   + [PRIORIDAD BAJA]
+ * }</pre>
+ *
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  * @see ReportType
  * @see Report
  */
@@ -35,42 +39,36 @@ public class ReportFactory {
     /**
      * Crea y configura un nuevo reporte de emergencia según su tipo.
      *
-     * <p>Asigna automáticamente el estado inicial y agrega la etiqueta
-     * de prioridad a la descripción. El tipo se normaliza a mayúsculas
-     * para evitar errores por capitalización inconsistente.</p>
+     * <p>Recibe el record {@link CreateReportRequest} completo y aplica
+     * las reglas de negocio correspondientes al tipo de reporte.
+     * El tipo se normaliza a mayúsculas para evitar errores por
+     * capitalización inconsistente.</p>
      *
-     * @param titulo       Título descriptivo del reporte.
-     * @param descripcion  Descripción base de la emergencia. Se le agrega la prioridad.
-     * @param latitud      Coordenada de latitud de la ubicación.
-     * @param longitud     Coordenada de longitud de la ubicación.
-     * @param tipo         Tipo de reporte (INCENDIO, HUMO, SOSPECHOSO). Case-insensitive.
-     * @param emailUsuario Correo del usuario que reporta la emergencia.
+     * @param request Record con los datos validados del nuevo reporte.
      * @return {@link Report} configurado con estado y prioridad según el tipo.
      * @throws IllegalArgumentException si el tipo no corresponde a ningún valor de {@link ReportType}.
      */
-    public Report crear(String titulo, String descripcion,
-                        Double latitud, Double longitud,
-                        String tipo, String emailUsuario) {
+    public Report crear(CreateReportRequest request) {
 
         Report reporte = new Report();
-        reporte.setTitulo(titulo);
-        reporte.setLatitud(latitud);
-        reporte.setLongitud(longitud);
-        reporte.setEmailUsuario(emailUsuario);
-        reporte.setTipo(tipo.toUpperCase());
+        reporte.setTitulo(request.titulo());
+        reporte.setLatitud(request.latitud());
+        reporte.setLongitud(request.longitud());
+        reporte.setEmailUsuario(request.emailUsuario());
+        reporte.setTipo(request.tipo().toUpperCase());
 
-        switch (ReportType.valueOf(tipo.toUpperCase())) {
+        switch (ReportType.valueOf(request.tipo().toUpperCase())) {
             case INCENDIO -> {
                 reporte.setEstado("ACTIVO");
-                reporte.setDescripcion(descripcion + " [PRIORIDAD ALTA]");
+                reporte.setDescripcion(request.descripcion() + " [PRIORIDAD ALTA]");
             }
             case HUMO -> {
                 reporte.setEstado("EN_REVISION");
-                reporte.setDescripcion(descripcion + " [PRIORIDAD MEDIA]");
+                reporte.setDescripcion(request.descripcion() + " [PRIORIDAD MEDIA]");
             }
             case SOSPECHOSO -> {
                 reporte.setEstado("PENDIENTE");
-                reporte.setDescripcion(descripcion + " [PRIORIDAD BAJA]");
+                reporte.setDescripcion(request.descripcion() + " [PRIORIDAD BAJA]");
             }
         }
 

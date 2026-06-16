@@ -14,13 +14,26 @@ import org.springframework.security.web.SecurityFilterChain;
  * Al ser un servicio REST sin estado (stateless), se desactivan las sesiones HTTP
  * y la protección CSRF (no aplica para APIs JSON).</p>
  *
- * <p>Todos los endpoints de reportes son accesibles sin token JWT, ya que
- * la autenticación se valida en el BFF antes de llegar a este microservicio.
- * Este MS opera dentro de la red privada del clúster y no está expuesto
- * directamente al exterior.</p>
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Security by Design: configuración explícita, nada habilitado por defecto</li>
+ *   <li>Stateless Architecture: sin sesión HTTP, cada request es autónomo</li>
+ *   <li>Defense in Depth: la autenticación real ocurre en el BFF antes de llegar aquí</li>
+ * </ul>
  *
- * @author Municipalidad Valle del Sol
+ * <p>Modelo de seguridad del sistema:</p>
+ * <pre>{@code
+ * Internet
+ *   ↓ JWT validado
+ * BFF (ms-bff)
+ *   ↓ red interna del clúster
+ * ms-reportes (este servicio)
+ *   → permitAll() en /api/reportes/**
+ * }</pre>
+ *
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  */
 @Configuration
 @EnableWebSecurity
@@ -29,12 +42,12 @@ public class SecurityConfig {
     /**
      * Define la cadena de filtros de seguridad HTTP.
      *
-     * <p>Configuración aplicada:
+     * <p>Configuración aplicada:</p>
      * <ul>
      *   <li>CSRF desactivado: no necesario en APIs REST sin sesión.</li>
      *   <li>Sesiones STATELESS: cada request debe ser autónomo.</li>
      *   <li>Todos los endpoints de reportes permitidos sin token.</li>
-     * </ul></p>
+     * </ul>
      *
      * @param http Objeto de configuración de seguridad HTTP inyectado por Spring.
      * @return {@link SecurityFilterChain} construida con la configuración definida.

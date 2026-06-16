@@ -9,25 +9,40 @@ import org.springframework.web.bind.annotation.*;
 import cl.municipalidad.msreport.dto.CreateReportRequest;
 import cl.municipalidad.msreport.dto.ReportDTO;
 import cl.municipalidad.msreport.dto.UpdateEstadoRequest;
+import cl.municipalidad.msreport.dto.UpdateTituloRequest;
 import cl.municipalidad.msreport.service.ReportService;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controlador REST para la gestión de reportes de emergencia.
  *
- * <p>Expone los endpoints de creación, consulta, actualización y eliminación
- * de reportes. Delega toda la lógica de negocio al {@link ReportService}
- * y usa {@code @Valid} para validar los DTOs de entrada antes de procesarlos.</p>
+ * <p>Responsabilidad única: recibir requests HTTP, delegar al
+ * {@link ReportService} y retornar la respuesta. No contiene
+ * lógica de negocio ni desempaquetado de datos.</p>
  *
- * <p>Todos los endpoints son públicos, ya que la autenticación se valida
- * en el BFF antes de llegar a este microservicio.</p>
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Single Responsibility: solo maneja endpoints HTTP</li>
+ *   <li>Delegation Pattern: delega toda lógica al service</li>
+ *   <li>Facade Pattern: interfaz simplificada para clientes HTTP externos</li>
+ * </ul>
+ *
+ * <p>Flujo de responsabilidades:</p>
+ * <pre>{@code
+ * ReportController
+ *   ↓ solo recibe y responde HTTP
+ * ReportService
+ *   ↓ implementa lógica de negocio
+ * ReportFactory + ReportRepository
+ *   ↓ crea y persiste entidades
+ * }</pre>
  *
  * <p><b>Base URL:</b> {@code /api/reportes}</p>
  *
- * @author Municipalidad Valle del Sol
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  * @see ReportService
  */
 @RestController
@@ -42,33 +57,14 @@ public class ReportController {
      *
      * <p><b>POST</b> {@code /api/reportes}</p>
      *
-     * <p>Ejemplo de cuerpo de solicitud:
-     * <pre>{@code
-     * {
-     *   "titulo": "Incendio en Av. Principal",
-     *   "descripcion": "Humo visible desde el parque",
-     *   "latitud": -33.45,
-     *   "longitud": -70.65,
-     *   "tipo": "INCENDIO",
-     *   "emailUsuario": "vecino@municipalidad.cl"
-     * }
-     * }</pre></p>
-     *
-     * @param request DTO validado con los datos del nuevo reporte.
+     * @param request Record validado con los datos del nuevo reporte.
      * @return {@link ReportDTO} con el reporte creado y HTTP 201.
      *         HTTP 400 si algún campo no pasa la validación.
      */
     @PostMapping
     public ResponseEntity<ReportDTO> crear(@Valid @RequestBody CreateReportRequest request) {
-        ReportDTO dto = reporteService.crear(
-            request.titulo(),
-            request.descripcion(),
-            request.latitud(),
-            request.longitud(),
-            request.tipo(),
-            request.emailUsuario()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(reporteService.crear(request));
     }
 
     /**
@@ -85,7 +81,6 @@ public class ReportController {
 
     /**
      * Retorna solo los reportes con estado {@code ACTIVO}.
-     * Usado por el frontend para mostrar marcadores en el mapa Leaflet.
      *
      * <p><b>GET</b> {@code /api/reportes/activos}</p>
      *
@@ -101,7 +96,7 @@ public class ReportController {
      *
      * <p><b>GET</b> {@code /api/reportes/{id}}</p>
      *
-     * @param id Identificador del reporte (path variable).
+     * @param id Identificador del reporte.
      * @return HTTP 200 con {@link ReportDTO} si existe.
      *         HTTP 409 si no se encuentra el reporte.
      */
@@ -115,15 +110,8 @@ public class ReportController {
      *
      * <p><b>PUT</b> {@code /api/reportes/{id}/estado}</p>
      *
-     * <p>Ejemplo de cuerpo de solicitud:
-     * <pre>{@code
-     * {
-     *   "estado": "CERRADO"
-     * }
-     * }</pre></p>
-     *
-     * @param id      Identificador del reporte a actualizar (path variable).
-     * @param request DTO validado con el nuevo estado.
+     * @param id      Identificador del reporte a actualizar.
+     * @param request Record validado con el nuevo estado.
      * @return HTTP 200 con {@link ReportDTO} actualizado.
      *         HTTP 400 si el estado no es válido.
      */
@@ -139,15 +127,16 @@ public class ReportController {
      *
      * <p><b>PUT</b> {@code /api/reportes/{id}}</p>
      *
-     * @param id   Identificador del reporte a actualizar (path variable).
-     * @param body Mapa con el campo {@code titulo}.
+     * @param id      Identificador del reporte a actualizar.
+     * @param request Record validado con el nuevo título.
      * @return HTTP 200 con {@link ReportDTO} actualizado.
+     *         HTTP 400 si el título no pasa la validación.
      */
     @PutMapping("/{id}")
     public ResponseEntity<ReportDTO> actualizarTitulo(
             @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(reporteService.actualizarTitulo(id, body.get("titulo")));
+            @Valid @RequestBody UpdateTituloRequest request) {
+        return ResponseEntity.ok(reporteService.actualizarTitulo(id, request));
     }
 
     /**
@@ -155,7 +144,7 @@ public class ReportController {
      *
      * <p><b>DELETE</b> {@code /api/reportes/{id}}</p>
      *
-     * @param id Identificador del reporte a eliminar (path variable).
+     * @param id Identificador del reporte a eliminar.
      * @return HTTP 204 sin contenido si se eliminó correctamente.
      *         HTTP 409 si no se encuentra el reporte.
      */

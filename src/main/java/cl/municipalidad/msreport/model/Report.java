@@ -12,12 +12,27 @@ import java.time.LocalDateTime;
  * y prioridad, asignados por {@link cl.municipalidad.msreport.factory.ReportFactory}
  * mediante el patrón Factory Method.</p>
  *
- * <p><b>Nota:</b> Esta entidad no se expone directamente al cliente.
- * Se convierte a {@link cl.municipalidad.msreport.dto.ReportDTO} antes
- * de cualquier respuesta HTTP.</p>
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Entity Pattern: clase mapeada a tabla relacional con identidad propia</li>
+ *   <li>Rich Domain Model: campos con valores por defecto encapsulan reglas simples</li>
+ *   <li>Anti-corruption Layer: nunca se expone directamente; se convierte a {@link cl.municipalidad.msreport.dto.ReportDTO}</li>
+ * </ul>
  *
- * @author Municipalidad Valle del Sol
+ * <p>Flujo de vida de la entidad:</p>
+ * <pre>{@code
+ * CreateReportRequest
+ *   ↓ ReportFactory.crear()
+ * Report (entidad configurada)
+ *   ↓ ReportRepository.save()
+ * PostgreSQL (tabla reporte)
+ *   ↓ ReportService.toDTO()
+ * ReportDTO (respuesta HTTP)
+ * }</pre>
+ *
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  * @see cl.municipalidad.msreport.factory.ReportFactory
  * @see cl.municipalidad.msreport.dto.ReportDTO
  */

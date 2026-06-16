@@ -15,7 +15,21 @@ import jakarta.validation.constraints.Size;
  * al usar {@code @Valid} en el controlador, antes de que el dato llegue a la
  * capa de servicio o factory.</p>
  *
- * <p><b>Patrón aplicado:</b> Data Transfer Object (DTO) con Java Record + Bean Validation.</p>
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Data Transfer Object (DTO): encapsula datos de entrada sin exponer la entidad</li>
+ *   <li>Value Object: inmutable por diseño gracias al Record de Java</li>
+ *   <li>Fail Fast: Bean Validation rechaza datos inválidos antes del service</li>
+ * </ul>
+ *
+ * <p>Flujo de validación:</p>
+ * <pre>{@code
+ * HTTP Request (JSON)
+ *   ↓ @Valid en ReportController
+ * CreateReportRequest (Bean Validation)
+ *   ↓ si pasa validación
+ * ReportService → ReportFactory
+ * }</pre>
  *
  * @param titulo       Título descriptivo del reporte. Obligatorio, máximo 150 caracteres.
  * @param descripcion  Descripción detallada de la emergencia. Máximo 1000 caracteres.
@@ -24,8 +38,9 @@ import jakarta.validation.constraints.Size;
  * @param tipo         Tipo de reporte. Solo acepta: INCENDIO, HUMO, SOSPECHOSO.
  * @param emailUsuario Correo del usuario que crea el reporte.
  *
- * @author Municipalidad Valle del Sol
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  */
 public record CreateReportRequest(
 

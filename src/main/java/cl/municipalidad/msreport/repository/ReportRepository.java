@@ -15,14 +15,25 @@ import java.util.List;
  * Spring Data JPA genera automáticamente la implementación en tiempo de
  * ejecución a partir de los nombres de los métodos.</p>
  *
- * <p>Extiende {@link JpaRepository} para heredar operaciones CRUD básicas:
- * {@code save()}, {@code findById()}, {@code findAll()}, {@code deleteById()},
- * entre otras.</p>
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Repository Pattern: abstrae la capa de persistencia del servicio</li>
+ *   <li>Query by Method Name: Spring Data deriva el SQL del nombre del método</li>
+ *   <li>Dependency Inversion: el service depende de la interfaz, no de la implementación</li>
+ * </ul>
  *
- * <p><b>Patrón aplicado:</b> Repository Pattern (Martin Fowler).</p>
+ * <p>Operaciones heredadas de {@link JpaRepository}:</p>
+ * <pre>{@code
+ * save()        → INSERT / UPDATE
+ * findById()    → SELECT WHERE id = ?
+ * findAll()     → SELECT *
+ * deleteById()  → DELETE WHERE id = ?
+ * existsById()  → SELECT COUNT WHERE id = ?
+ * }</pre>
  *
- * @author Municipalidad Valle del Sol
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  * @see Report
  */
 @Repository

@@ -18,16 +18,24 @@ import java.util.stream.Collectors;
  * transforma en respuestas HTTP estructuradas y legibles, evitando que
  * Spring devuelva stack traces o mensajes genéricos al cliente.</p>
  *
- * <p><b>Excepciones manejadas:</b>
+ * <p>Patrones aplicados:</p>
  * <ul>
- *   <li>{@link MethodArgumentNotValidException} → HTTP 400 (errores de validación @Valid)</li>
- *   <li>{@link IllegalArgumentException} → HTTP 400 (tipo de reporte inválido del factory)</li>
- *   <li>{@link RuntimeException} → HTTP 409 (reporte no encontrado u otras reglas de negocio)</li>
- *   <li>{@link Exception} → HTTP 500 (errores inesperados)</li>
- * </ul></p>
+ *   <li>Chain of Responsibility: cada handler atiende su tipo de excepción</li>
+ *   <li>Facade Pattern: oculta los detalles internos del error al cliente</li>
+ *   <li>Single Responsibility: centraliza el manejo de errores fuera de los controladores</li>
+ * </ul>
  *
- * @author Municipalidad Valle del Sol
+ * <p>Mapa de excepciones a respuestas HTTP:</p>
+ * <pre>{@code
+ * MethodArgumentNotValidException → 400 Bad Request  (falla @Valid)
+ * IllegalArgumentException        → 400 Bad Request  (tipo inválido en factory)
+ * RuntimeException                → 409 Conflict     (reporte no encontrado)
+ * Exception                       → 500 Internal     (error inesperado)
+ * }</pre>
+ *
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -92,7 +100,7 @@ public class GlobalExceptionHandler {
      * Maneja cualquier excepción no contemplada por los handlers anteriores.
      *
      * @param ex Excepción genérica no manejada.
-     * @return HTTP 500 con mensaje genérico.
+     * @return HTTP 500 con mensaje genérico de error interno.
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {

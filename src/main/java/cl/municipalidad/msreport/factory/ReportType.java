@@ -4,17 +4,25 @@ package cl.municipalidad.msreport.factory;
  * Enumeración de los tipos de reporte de emergencia soportados por el sistema.
  *
  * <p>Usado por {@link ReportFactory} para determinar el estado inicial
- * y la prioridad de cada reporte mediante el patrón Factory Method.</p>
+ * y la prioridad de cada reporte mediante el patrón Factory Method.
+ * Actúa como fuente de verdad para los valores válidos de tipo de reporte.</p>
  *
- * <p><b>Prioridades asignadas:</b>
+ * <p>Patrones aplicados:</p>
  * <ul>
- *   <li>{@code INCENDIO} → Prioridad ALTA, estado inicial: ACTIVO</li>
- *   <li>{@code HUMO} → Prioridad MEDIA, estado inicial: EN_REVISION</li>
- *   <li>{@code SOSPECHOSO} → Prioridad BAJA, estado inicial: PENDIENTE</li>
- * </ul></p>
+ *   <li>Type Safety: enum garantiza valores válidos en tiempo de compilación</li>
+ *   <li>Strategy implícita: cada valor implica un comportamiento distinto en el factory</li>
+ * </ul>
  *
- * @author Municipalidad Valle del Sol
+ * <p>Mapa de prioridades:</p>
+ * <pre>{@code
+ * INCENDIO   → Prioridad ALTA   | estado inicial: ACTIVO
+ * HUMO       → Prioridad MEDIA  | estado inicial: EN_REVISION
+ * SOSPECHOSO → Prioridad BAJA   | estado inicial: PENDIENTE
+ * }</pre>
+ *
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  * @see ReportFactory
  */
 public enum ReportType {

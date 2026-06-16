@@ -3,7 +3,9 @@ package cl.municipalidad.msreport.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import cl.municipalidad.msreport.dto.CreateReportRequest;
 import cl.municipalidad.msreport.dto.ReportDTO;
+import cl.municipalidad.msreport.dto.UpdateTituloRequest;
 import cl.municipalidad.msreport.factory.ReportFactory;
 import cl.municipalidad.msreport.model.Report;
 import cl.municipalidad.msreport.repository.ReportRepository;
@@ -13,16 +15,31 @@ import java.util.List;
 /**
  * Servicio de lógica de negocio para la gestión de reportes de emergencia.
  *
- * <p>Actúa como capa intermedia entre el controlador
- * ({@link cl.municipalidad.msreport.controller.ReportController}) y el repositorio
- * ({@link ReportRepository}), delegando la creación de entidades al
- * {@link ReportFactory} y la conversión a DTO al método privado {@code toDTO()}.</p>
+ * <p>Actúa como capa intermedia entre el controlador y el repositorio,
+ * delegando la creación de entidades al {@link ReportFactory} y la
+ * conversión a DTO al método privado {@code toDTO()}.</p>
  *
- * <p>Utiliza {@code @RequiredArgsConstructor} de Lombok para inyección de
- * dependencias por constructor, siguiendo las buenas prácticas de Spring.</p>
+ * <p>Patrones aplicados:</p>
+ * <ul>
+ *   <li>Service Layer: centraliza la lógica de negocio entre controller y repository</li>
+ *   <li>Delegation Pattern: delega creación al factory y persistencia al repository</li>
+ *   <li>Single Responsibility: no construye entidades ni maneja HTTP</li>
+ * </ul>
  *
- * @author Municipalidad Valle del Sol
+ * <p>Flujo de responsabilidades:</p>
+ * <pre>{@code
+ * ReportController
+ *   ↓ delega con record completo
+ * ReportService (esta clase)
+ *   ↓ crea entidad         ↓ persiste
+ * ReportFactory      ReportRepository
+ *   ↓ retorna DTO convertido
+ * ReportController → HTTP Response
+ * }</pre>
+ *
+ * @author Beltran
  * @version 1.0
+ * @since 1.0
  * @see ReportFactory
  * @see ReportRepository
  * @see ReportDTO
@@ -38,27 +55,20 @@ public class ReportService {
      * Crea un nuevo reporte de emergencia.
      *
      * <p>Delega la construcción de la entidad al {@link ReportFactory},
-     * que asigna el estado inicial y la prioridad según el tipo de reporte.
+     * pasando el record completo sin desempaquetarlo. El factory
+     * asigna el estado inicial y la prioridad según el tipo de reporte.
      * Luego persiste el reporte y retorna su representación como DTO.</p>
      *
-     * @param titulo       Título del reporte.
-     * @param descripcion  Descripción base (el factory agrega la etiqueta de prioridad).
-     * @param latitud      Coordenada de latitud.
-     * @param longitud     Coordenada de longitud.
-     * @param tipo         Tipo de reporte: INCENDIO, HUMO o SOSPECHOSO.
-     * @param emailUsuario Correo del usuario que crea el reporte.
+     * @param request Record validado con todos los datos del nuevo reporte.
      * @return {@link ReportDTO} con los datos del reporte creado.
      */
-    public ReportDTO crear(String titulo, String descripcion,
-                           Double latitud, Double longitud,
-                           String tipo, String emailUsuario) {
-        Report reporte = reporteFactory.crear(titulo, descripcion, latitud, longitud, tipo, emailUsuario);
+    public ReportDTO crear(CreateReportRequest request) {
+        Report reporte = reporteFactory.crear(request);
         return toDTO(reporteRepository.save(reporte));
     }
 
     /**
      * Retorna todos los reportes con estado {@code ACTIVO}.
-     * Usado por el frontend para mostrar marcadores en el mapa Leaflet.
      *
      * @return Lista de {@link ReportDTO} con reportes activos. Vacía si no hay ninguno.
      */
@@ -112,15 +122,19 @@ public class ReportService {
     /**
      * Actualiza el título de un reporte existente.
      *
-     * @param id          Identificador del reporte a actualizar.
-     * @param nuevoTitulo Nuevo título a asignar.
+     * <p>Recibe el record {@link UpdateTituloRequest} completo en lugar
+     * de un String suelto, manteniendo consistencia con el patrón
+     * de delegación por records del proyecto.</p>
+     *
+     * @param id      Identificador del reporte a actualizar.
+     * @param request Record con el nuevo título validado.
      * @return {@link ReportDTO} con el título actualizado.
      * @throws RuntimeException si no existe un reporte con el id dado.
      */
-    public ReportDTO actualizarTitulo(Long id, String nuevoTitulo) {
+    public ReportDTO actualizarTitulo(Long id, UpdateTituloRequest request) {
         Report reporte = reporteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
-        reporte.setTitulo(nuevoTitulo);
+        reporte.setTitulo(request.titulo());
         return toDTO(reporteRepository.save(reporte));
     }
 
@@ -139,9 +153,6 @@ public class ReportService {
 
     /**
      * Convierte una entidad {@link Report} a su representación pública {@link ReportDTO}.
-     *
-     * <p>Método privado auxiliar que centraliza la conversión, evitando
-     * duplicación de código en los distintos métodos del servicio.</p>
      *
      * @param reporte Entidad a convertir.
      * @return {@link ReportDTO} con los datos del reporte.
