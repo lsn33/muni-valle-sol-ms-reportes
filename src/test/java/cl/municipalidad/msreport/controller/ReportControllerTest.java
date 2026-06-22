@@ -2,7 +2,7 @@ package cl.municipalidad.msreport.controller;
 
 import cl.municipalidad.msreport.dto.CreateReportRequest;
 import cl.municipalidad.msreport.dto.ReportDTO;
-import cl.municipalidad.msreport.dto.UpdateTituloRequest;
+import cl.municipalidad.msreport.dto.UpdateTitleRequest;
 import cl.municipalidad.msreport.service.ReportService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -203,7 +203,7 @@ class ReportControllerTest {
     void actualizarTitulo_retorna200() throws Exception {
         ReportDTO actualizado = new ReportDTO(1L, "Nuevo Título", "D", -33.45, -70.65,
                 "INCENDIO", "ACTIVO", "v@test.cl", LocalDateTime.now());
-        when(reporteService.actualizarTitulo(eq(1L), any(UpdateTituloRequest.class)))
+        when(reporteService.actualizarTitulo(eq(1L), any(UpdateTitleRequest.class)))
                 .thenReturn(actualizado);
 
         mockMvc().perform(put("/api/reportes/1")
