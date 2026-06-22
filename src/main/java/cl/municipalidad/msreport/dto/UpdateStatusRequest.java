@@ -32,7 +32,7 @@ import jakarta.validation.constraints.Pattern;
  * @version 1.0
  * @since 1.0
  */
-public record UpdateEstadoRequest(
+public record UpdateStatusRequest(
 
     @NotBlank(message = "El estado es obligatorio")
     @Pattern(

@@ -2,7 +2,7 @@ package cl.municipalidad.msreport.service;
 
 import cl.municipalidad.msreport.dto.CreateReportRequest;
 import cl.municipalidad.msreport.dto.ReportDTO;
-import cl.municipalidad.msreport.dto.UpdateTituloRequest;
+import cl.municipalidad.msreport.dto.UpdateTitleRequest;
 import cl.municipalidad.msreport.factory.ReportFactory;
 import cl.municipalidad.msreport.model.Report;
 import cl.municipalidad.msreport.repository.ReportRepository;
@@ -218,7 +218,7 @@ class ReportServiceTest {
     @Test
     @DisplayName("actualizarTitulo: debe cambiar título desde record y retornar DTO actualizado")
     void actualizarTitulo_exitoso_retornaDTOActualizado() {
-        UpdateTituloRequest request = new UpdateTituloRequest("Nuevo Título Incendio");
+        UpdateTitleRequest request = new UpdateTitleRequest("Nuevo Título Incendio");
         when(reporteRepository.findById(1L)).thenReturn(Optional.of(reporteMock));
         when(reporteRepository.save(reporteMock)).thenReturn(reporteMock);
 
@@ -234,7 +234,7 @@ class ReportServiceTest {
     @Test
     @DisplayName("actualizarTitulo: debe lanzar excepción cuando el reporte no existe")
     void actualizarTitulo_idInexistente_lanzaExcepcion() {
-        UpdateTituloRequest request = new UpdateTituloRequest("Título Inválido");
+        UpdateTitleRequest request = new UpdateTitleRequest("Título Inválido");
         when(reporteRepository.findById(404L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reportService.actualizarTitulo(404L, request))

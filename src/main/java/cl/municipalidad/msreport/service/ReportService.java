@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import cl.municipalidad.msreport.dto.CreateReportRequest;
 import cl.municipalidad.msreport.dto.ReportDTO;
-import cl.municipalidad.msreport.dto.UpdateTituloRequest;
+import cl.municipalidad.msreport.dto.UpdateTitleRequest;
 import cl.municipalidad.msreport.factory.ReportFactory;
 import cl.municipalidad.msreport.model.Report;
 import cl.municipalidad.msreport.repository.ReportRepository;
@@ -122,7 +122,7 @@ public class ReportService {
     /**
      * Actualiza el título de un reporte existente.
      *
-     * <p>Recibe el record {@link UpdateTituloRequest} completo en lugar
+     * <p>Recibe el record {@link UpdateTitleRequest} completo en lugar
      * de un String suelto, manteniendo consistencia con el patrón
      * de delegación por records del proyecto.</p>
      *
@@ -131,7 +131,7 @@ public class ReportService {
      * @return {@link ReportDTO} con el título actualizado.
      * @throws RuntimeException si no existe un reporte con el id dado.
      */
-    public ReportDTO actualizarTitulo(Long id, UpdateTituloRequest request) {
+    public ReportDTO actualizarTitulo(Long id, UpdateTitleRequest request) {
         Report reporte = reporteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
         reporte.setTitulo(request.titulo());

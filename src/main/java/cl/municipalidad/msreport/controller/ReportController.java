@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import cl.municipalidad.msreport.dto.CreateReportRequest;
 import cl.municipalidad.msreport.dto.ReportDTO;
-import cl.municipalidad.msreport.dto.UpdateEstadoRequest;
-import cl.municipalidad.msreport.dto.UpdateTituloRequest;
+import cl.municipalidad.msreport.dto.UpdateStatusRequest;
+import cl.municipalidad.msreport.dto.UpdateTitleRequest;
 import cl.municipalidad.msreport.service.ReportService;
 
 import java.util.List;
@@ -118,7 +118,7 @@ public class ReportController {
     @PutMapping("/{id}/estado")
     public ResponseEntity<ReportDTO> actualizarEstado(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateEstadoRequest request) {
+            @Valid @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(reporteService.actualizarEstado(id, request.estado()));
     }
 
@@ -135,7 +135,7 @@ public class ReportController {
     @PutMapping("/{id}")
     public ResponseEntity<ReportDTO> actualizarTitulo(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateTituloRequest request) {
+            @Valid @RequestBody UpdateTitleRequest request) {
         return ResponseEntity.ok(reporteService.actualizarTitulo(id, request));
     }
 
